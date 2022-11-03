@@ -22,7 +22,7 @@ class Category
     private Collection $items;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
-    private ?User $makeUser = null;
+    private ?User $makaUser = null;
 
     public function __construct()
     {
@@ -73,14 +73,14 @@ class Category
         return $this;
     }
 
-    public function getMakeUser(): ?User
+    public function getMakaUser(): ?User
     {
-        return $this->makeUser;
+        return $this->makaUser;
     }
 
-    public function setMakeUser(?User $makeUser): self
+    public function setMakaUser(?User $makaUser): self
     {
-        $this->makeUser = $makeUser;
+        $this->makaUser = $makaUser;
 
         return $this;
     }

@@ -277,7 +277,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->categories->contains($category)) {
             $this->categories->add($category);
-            $category->setMakeUser($this);
+            $category->setMakaUser($this);
         }
 
         return $this;
@@ -287,8 +287,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->categories->removeElement($category)) {
             // set the owning side to null (unless already changed)
-            if ($category->getMakeUser() === $this) {
-                $category->setMakeUser(null);
+            if ($category->getMakaUser() === $this) {
+                $category->setMakaUser(null);
             }
         }
 
