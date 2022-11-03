@@ -21,16 +21,16 @@ class Media
     #[ORM\Column]
     private ?bool $verified = null;
 
-    #[ORM\ManyToOne(inversedBy: 'medias')]
+    #[ORM\ManyToOne(targetEntity: Item::class,inversedBy: 'medias')]
     private ?Item $item = null;
 
     #[ORM\OneToMany(mappedBy: 'media', targetEntity: Comment::class)]
     private Collection $comments;
 
-    #[ORM\ManyToOne(inversedBy: 'medias')]
-    private ?User $makaUser = null;
+    #[ORM\ManyToOne(targetEntity: MakaUser::class,inversedBy: 'medias')]
+    private ?MakaUser $makaUser = null;
 
-    #[ORM\ManyToOne(inversedBy: 'medias')]
+    #[ORM\ManyToOne(targetEntity: Type::class,inversedBy: 'medias')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Type $type = null;
 
@@ -110,12 +110,12 @@ class Media
         return $this;
     }
 
-    public function getMakaUser(): ?User
+    public function getMakaUser(): ?MakaUser
     {
         return $this->makaUser;
     }
 
-    public function setMakaUser(?User $makaUser): self
+    public function setMakaUser(?MakaUser $makaUser): self
     {
         $this->makaUser = $makaUser;
 

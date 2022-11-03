@@ -21,8 +21,8 @@ class Category
     #[ORM\ManyToMany(targetEntity: Item::class, mappedBy: 'categories')]
     private Collection $items;
 
-    #[ORM\ManyToOne(inversedBy: 'categories')]
-    private ?User $makaUser = null;
+    #[ORM\ManyToOne(targetEntity: MakaUser::class,inversedBy: 'categories')]
+    private ?MakaUser $makaUser = null;
 
     public function __construct()
     {
@@ -73,12 +73,12 @@ class Category
         return $this;
     }
 
-    public function getMakaUser(): ?User
+    public function getMakaUser(): ?MakaUser
     {
         return $this->makaUser;
     }
 
-    public function setMakaUser(?User $makaUser): self
+    public function setMakaUser(?MakaUser $makaUser): self
     {
         $this->makaUser = $makaUser;
 

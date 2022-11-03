@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Entity\MakaUser;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -10,22 +10,43 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/user')]
+#[Route('api/user')]
 class UserController extends AbstractController
 {
+    private SerializerInterface $serializer;
+
+    /**
+     * @param SerializerInterface $serializer
+     */
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
     #[Route('/', name: 'app_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): JsonResponse
     {
-        return new JsonResponse([
-            'users' => $userRepository->findAll(),
-        ]);
+        $userList = $userRepository->findAll();
+        $jsonUserList = $this->serializer->serialize($userList, 'json', ['groups' => 'list_maka_user']);
+
+        return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
+    public function show(MakaUser $user): JsonResponse
+    {
+        $jsonUser = $this->serializer->serialize($user, 'json', ['groups' => 'show_maka_user']);
+
+        return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
+
     }
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
     public function new(Request $request, UserRepository $userRepository): Response
     {
-        $user = new User();
+        $user = new MakaUser();
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
@@ -41,16 +62,8 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
-    public function show(User $user): Response
-    {
-        return $this->render('user/show.html.twig', [
-            'user' => $user,
-        ]);
-    }
-
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, UserRepository $userRepository): Response
+    public function edit(Request $request, MakaUser $user, UserRepository $userRepository): Response
     {
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
@@ -68,7 +81,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, UserRepository $userRepository): Response
+    public function delete(Request $request, MakaUser $user, UserRepository $userRepository): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
             $userRepository->remove($user, true);

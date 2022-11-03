@@ -9,56 +9,65 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?string $email = null;
 
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\OneToMany(mappedBy: 'maka_user', targetEntity: Item::class)]
+    #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Item::class)]
     private Collection $items;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?\DateTimeInterface $updateAt = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?string $profession = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?\DateTimeInterface $birthDate = null;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Media::class)]
+    #[Groups(['show_maka_user'])]
     private Collection $medias;
 
-    #[ORM\OneToMany(mappedBy: 'makeUser', targetEntity: Category::class)]
+    #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Category::class)]
+    #[Groups(['show_maka_user'])]
     private Collection $categories;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Comment::class)]
+    #[Groups(['show_maka_user'])]
     private Collection $comments;
 
     public function __construct()
@@ -86,19 +95,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
@@ -115,9 +116,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): string
     {
         return $this->password;
@@ -130,18 +128,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials()
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }
 
-    /**
-     * @return Collection<int, Item>
-     */
     public function getItems(): Collection
     {
         return $this->items;

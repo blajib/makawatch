@@ -16,12 +16,12 @@ class Comment
     #[ORM\Column(length: 2555)]
     private ?string $text = null;
 
-    #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[ORM\ManyToOne(targetEntity: Media::class, inversedBy: 'comments')]
     private ?Media $media = null;
 
-    #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[ORM\ManyToOne(targetEntity: MakaUser::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $makaUser = null;
+    private ?MakaUser $makaUser = null;
 
     public function getId(): ?int
     {
@@ -52,12 +52,12 @@ class Comment
         return $this;
     }
 
-    public function getMakaUser(): ?User
+    public function getMakaUser(): ?MakaUser
     {
         return $this->makaUser;
     }
 
-    public function setMakaUser(?User $makaUser): self
+    public function setMakaUser(?MakaUser $makaUser): self
     {
         $this->makaUser = $makaUser;
 

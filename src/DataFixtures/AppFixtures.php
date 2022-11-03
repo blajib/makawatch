@@ -7,7 +7,7 @@ use App\Entity\Comment;
 use App\Entity\Item;
 use App\Entity\Media;
 use App\Entity\Type;
-use App\Entity\User;
+use App\Entity\MakaUser;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker;
@@ -55,7 +55,7 @@ class AppFixtures extends Fixture
         $faker = Faker\Factory::create();
 
         // création du SUPER_ADMIN
-        $userAdmin = new User();
+        $userAdmin = new MakaUser();
         $userAdmin->setFirstName('jib');
         $userAdmin->setLastName('bla');
         $userAdmin->setPassword('california');
@@ -70,7 +70,7 @@ class AppFixtures extends Fixture
         $this->users[] = $userAdmin;
 
         for ($i = 1; $i <= 30; $i++) {
-            $user = new User();
+            $user = new MakaUser();
             $user->setEmail($faker->email);
             $user->setFirstName($faker->firstName);
             $user->setLastName($faker->lastName);
