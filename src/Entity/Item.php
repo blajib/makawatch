@@ -6,6 +6,7 @@ use App\Repository\ItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
 class Item
@@ -16,25 +17,32 @@ class Item
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['show_item', 'list_item'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['show_item', 'list_item'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['show_item', 'list_item'])]
     private ?int $level = null;
 
     #[ORM\Column]
+    #[Groups(['show_item', 'list_item'])]
     private ?bool $verified = null;
 
     #[ORM\OneToMany(mappedBy: 'item', targetEntity: Media::class)]
+    #[Groups(['show_item'])]
     private Collection $medias;
 
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'items')]
+    #[Groups(['show_item'])]
     private Collection $categories;
 
     #[ORM\ManyToOne(targetEntity: MakaUser::class,inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups(['show_item', 'list_item'])]
     private ?MakaUser $makaUser = null;
 
     public function __construct()

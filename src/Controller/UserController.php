@@ -31,9 +31,9 @@ class UserController extends AbstractController
     }
 
     #[Route('/', name: 'maka_user_index', methods: ['GET'])]
-    public function index(UserRepository $userRepository): JsonResponse
+    public function index(): JsonResponse
     {
-        $userList = $userRepository->findAll();
+        $userList = $this->userRepository->findAll();
         $jsonUserList = $this->serializer->serialize($userList, 'json', ['groups' => 'list_maka_user']);
 
         return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
@@ -97,7 +97,7 @@ class UserController extends AbstractController
         } else {
             //On envoi un message d'erreur si l'utilisateur n'est pas retrouvé en BDD
             $jsonResult = $this->serializer->serialize([
-                    'error' => 'Cet ID ne correspond à aucun utilisateur'
+                    'error' => 'Cet ID ne correspond à aucun utilisateur',
                 ]
                 , 'json', ['groups' => 'show_maka_user']);
 
