@@ -20,7 +20,7 @@ class Comment
     private ?Media $media = null;
 
     #[ORM\ManyToOne(targetEntity: MakaUser::class, inversedBy: 'comments')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL' )]
     private ?MakaUser $makaUser = null;
 
     public function getId(): ?int

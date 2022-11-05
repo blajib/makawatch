@@ -3,13 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\MakaUser;
-use App\Form\UserType;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('api/user')]
@@ -17,15 +19,18 @@ class UserController extends AbstractController
 {
     private SerializerInterface $serializer;
 
-    /**
-     * @param SerializerInterface $serializer
-     */
-    public function __construct(SerializerInterface $serializer)
+    private EntityManagerInterface $em;
+
+    private UserRepository $userRepository;
+
+    public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, UserRepository $userRepository)
     {
         $this->serializer = $serializer;
+        $this->em = $em;
+        $this->userRepository = $userRepository;
     }
 
-    #[Route('/', name: 'app_user_index', methods: ['GET'])]
+    #[Route('/', name: 'maka_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): JsonResponse
     {
         $userList = $userRepository->findAll();
@@ -34,7 +39,20 @@ class UserController extends AbstractController
         return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
+    #[Route('/new', name: 'maka_user_new', methods: ['POST'])]
+    public function new(Request $request): JsonResponse
+    {
+        $makaUser = $this->serializer->deserialize($request->getContent(), MakaUser::class, 'json');
+        $makaUser->setCreatedAt(new \DateTime('now'));
+        $this->em->persist($makaUser);
+        $this->em->flush();
+
+        $jsonMakaUser = $this->serializer->serialize($makaUser, 'json', ['groups' => 'show_maka_user']);
+
+        return new JsonResponse($jsonMakaUser, Response::HTTP_CREATED, [], true);
+    }
+
+    #[Route('/{id}', name: 'maka_user_show', requirements: ["id" => "\d+"], methods: ['GET'])]
     public function show(MakaUser $user): JsonResponse
     {
         $jsonUser = $this->serializer->serialize($user, 'json', ['groups' => 'show_maka_user']);
@@ -43,50 +61,48 @@ class UserController extends AbstractController
 
     }
 
-    #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, UserRepository $userRepository): Response
+    #[Route('/edit/{id}', name: 'maka_user_edit', methods: ['GET', 'POST'])]
+    public function edit(MakaUser $currentUser, Request $request, UserRepository $userRepository): JsonResponse
     {
-        $user = new MakaUser();
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+        $updateUser = $this->serializer->deserialize($request->getContent(),
+            MakaUser::class,
+            'json',
+            [AbstractNormalizer::OBJECT_TO_POPULATE => $currentUser]);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $userRepository->save($user, true);
+        $this->em->persist($updateUser);
+        $this->em->flush();
 
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $jsonUpdateUser = $this->serializer->serialize($updateUser, 'json', ['groups' => 'show_maka_user']);
 
-        return $this->renderForm('user/new.html.twig', [
-            'user' => $user,
-            'form' => $form,
-        ]);
+        return new JsonResponse($jsonUpdateUser, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, MakaUser $user, UserRepository $userRepository): Response
+    #[Route('/delete/{id}', name: 'maka_user_delete', methods: ['GET'])]
+    public function delete(int $id): JsonResponse
     {
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+        $user = $this->userRepository->find($id);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $userRepository->save($user, true);
+        // onvérifie si un utilisateur existe en BDD.
+        if ($user) {
+            $this->em->remove($user);
+            $this->em->flush();
 
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            $jsonResult = $this->serializer->serialize([
+                    'delete'    => true,
+                    'firstName' => $user->getFirstName(),
+                    'lastName'  => $user->getLastName(),
+                ]
+                , 'json', ['groups' => 'show_maka_user']);
+
+        } else {
+            //On envoi un message d'erreur si l'utilisateur n'est pas retrouvé en BDD
+            $jsonResult = $this->serializer->serialize([
+                    'error' => 'Cet ID ne correspond à aucun utilisateur'
+                ]
+                , 'json', ['groups' => 'show_maka_user']);
+
         }
 
-        return $this->renderForm('user/edit.html.twig', [
-            'user' => $user,
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
-    public function delete(Request $request, MakaUser $user, UserRepository $userRepository): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
-            $userRepository->remove($user, true);
-        }
-
-        return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+        return new JsonResponse($jsonResult, Response::HTTP_OK, [], true);
     }
 }

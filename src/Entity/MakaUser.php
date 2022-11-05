@@ -26,13 +26,13 @@ class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column]
-    private array $roles = [];
+    private ?array $roles = [];
 
     #[ORM\Column]
     private ?string $password = null;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Item::class)]
-    private Collection $items;
+    private ?Collection $items;
 
     #[ORM\Column(length: 255)]
     #[Groups(['show_maka_user', 'list_maka_user'])]
@@ -60,15 +60,15 @@ class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Media::class)]
     #[Groups(['show_maka_user'])]
-    private Collection $medias;
+    private ?Collection $medias;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Category::class)]
     #[Groups(['show_maka_user'])]
-    private Collection $categories;
+    private ?Collection $categories;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Comment::class)]
     #[Groups(['show_maka_user'])]
-    private Collection $comments;
+    private ?Collection $comments;
 
     public function __construct()
     {

@@ -28,10 +28,11 @@ class Media
     private Collection $comments;
 
     #[ORM\ManyToOne(targetEntity: MakaUser::class,inversedBy: 'medias')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?MakaUser $makaUser = null;
 
     #[ORM\ManyToOne(targetEntity: Type::class,inversedBy: 'medias')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Type $type = null;
 
     public function __construct()

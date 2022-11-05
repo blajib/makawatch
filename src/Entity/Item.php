@@ -34,7 +34,7 @@ class Item
     private Collection $categories;
 
     #[ORM\ManyToOne(targetEntity: MakaUser::class,inversedBy: 'items')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?MakaUser $makaUser = null;
 
     public function __construct()
