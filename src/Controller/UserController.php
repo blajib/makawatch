@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('api/user')]
+#[Route('api-mak/user')]
 class UserController extends AbstractController
 {
     private SerializerInterface $serializer;
