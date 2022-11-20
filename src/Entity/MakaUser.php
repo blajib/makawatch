@@ -3,7 +3,9 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
 use App\Repository\UserRepository;
+use App\State\MakaUserProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -15,6 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ApiResource()]
+#[Post(processor: MakaUserProcessor::class)]
 class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -37,7 +40,7 @@ class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
         maxMessage: "Le password doit avoir moins de 20 caractères"
     )]
     #[Assert\Regex(pattern : '/\d+/i')]
-    #[Assert\Regex(pattern : '/[#?!@$%^&*-]+/i')]
+    #[Assert\Regex(pattern : '/[#?!@$§%^&*-]+/i')]
     private ?string $password = null;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Item::class)]
@@ -49,7 +52,7 @@ class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $lastName = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ["default" => "CURRENT_TIMESTAMP"])]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
