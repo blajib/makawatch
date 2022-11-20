@@ -3,7 +3,13 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\ItemRepository;
+use App\State\ItemStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -11,7 +17,15 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
+)]
+#[Post(processor: ItemStateProcessor::class)]
+#[Patch(processor: ItemStateProcessor::class)]
+#[Delete()]
+#[Get()]
+#[GetCollection()]
 class Item
 {
     public const LEVELS = [1,2,3,4,5,6,7];
@@ -19,38 +33,40 @@ class Item
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['show_item', 'list_item'])]
+    #[Groups(['read', 'write'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['show_item', 'list_item'])]
+    #[Groups(['read', 'write'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['show_item', 'list_item'])]
+    #[Groups(['read', 'write'])]
     private ?int $level = null;
 
     #[ORM\Column]
-    #[Groups(['show_item', 'list_item'])]
+    #[Groups(['read', 'write'])]
     private ?bool $verified = null;
 
     #[ORM\OneToMany(mappedBy: 'item', targetEntity: Media::class)]
-    #[Groups(['show_item'])]
+    #[Groups(['read'])]
     private Collection $medias;
 
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'items')]
-    #[Groups(['show_item'])]
+    #[Groups(['read'])]
     private Collection $categories;
 
     #[ORM\ManyToOne(targetEntity: MakaUser::class,inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    #[Groups(['show_item', 'list_item'])]
+    #[Groups(['read'])]
     private ?MakaUser $makaUser = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[Groups(['read'])]
     private ?\DateTimeInterface $createdAt = null;
 
     public function __construct()

@@ -3,6 +3,10 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\UserRepository;
 use App\State\MakaUserProcessor;
@@ -12,65 +16,87 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[ApiResource()]
+#[ApiResource(
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
+)]
 #[Post(processor: MakaUserProcessor::class)]
+#[Patch(processor: MakaUserProcessor::class)]
+#[Delete()]
+#[Get()]
+#[GetCollection()]
 class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('read')]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\NotBlank(message: "L'email doit être contribué")]
     #[Assert\Email(message: "L'email n'est pas correct")]
+    #[Groups(['read', 'write'])]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Groups(['write'])]
     private ?array $roles = [];
 
     #[ORM\Column]
-    #[Assert\Length(min: 10,
+    //TODO ça déconne je ne sais pas pourquoi
+/*    #[Assert\Length(min: 10,
         max: 20,
         minMessage: "Le password doit avoir minimum 10 caractères",
         maxMessage: "Le password doit avoir moins de 20 caractères"
-    )]
+    )]*/
     #[Assert\Regex(pattern : '/\d+/i')]
     #[Assert\Regex(pattern : '/[#?!@$§%^&*-]+/i')]
+    #[Groups(['write'])]
     private ?string $password = null;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Item::class)]
     private ?Collection $items;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read', 'write'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read', 'write'])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[Groups(['read'])]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['read'])]
     private ?\DateTimeInterface $updateAt = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read', 'write'])]
     private ?string $profession = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['read', 'write'])]
     private ?\DateTimeInterface $birthDate = null;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Media::class)]
+    #[Groups(['read'])]
     private ?Collection $medias;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Category::class)]
+    #[Groups(['read'])]
     private ?Collection $categories;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Comment::class)]
+    #[Groups(['read'])]
     private ?Collection $comments;
 
     public function __construct()

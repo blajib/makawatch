@@ -3,25 +3,44 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\MediaRepository;
+use App\State\MakaUserProcessor;
+use App\State\MediaStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
+)]
+#[Post(processor: MediaStateProcessor::class)]
+#[Patch(processor: MediaStateProcessor::class)]
+#[Delete()]
+#[Get()]
+#[GetCollection()]
 class Media
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('read')]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['read','write'])]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Groups(['read','write'])]
     private ?bool $verified = null;
 
     #[ORM\ManyToOne(targetEntity: Item::class,inversedBy: 'medias')]
@@ -32,13 +51,16 @@ class Media
 
     #[ORM\ManyToOne(targetEntity: MakaUser::class,inversedBy: 'medias')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups(['read'])]
     private ?MakaUser $makaUser = null;
 
     #[ORM\ManyToOne(targetEntity: Type::class,inversedBy: 'medias')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups(['read'])]
     private ?Type $type = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[Groups(['read'])]
     private ?\DateTimeInterface $createdAt = null;
 
     public function __construct()

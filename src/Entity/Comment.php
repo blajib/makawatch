@@ -3,30 +3,50 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\CommentRepository;
+use App\State\CommentStateProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
+)]
+#[Post(processor: CommentStateProcessor::class)]
+#[Patch(processor: CommentStateProcessor::class)]
+#[Delete()]
+#[Get()]
+#[GetCollection()]
 class Comment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('read')]
     private ?int $id = null;
 
     #[ORM\Column(length: 2555)]
+    #[Groups(['read', 'write'])]
     private ?string $text = null;
 
     #[ORM\ManyToOne(targetEntity: Media::class, inversedBy: 'comments')]
+    #[Groups('read')]
     private ?Media $media = null;
 
     #[ORM\ManyToOne(targetEntity: MakaUser::class, inversedBy: 'comments')]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL' )]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups('read')]
     private ?MakaUser $makaUser = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ["default" => "CURRENT_TIMESTAMP"])]
+    #[Groups('read')]
     private ?\DateTimeInterface $createdAt = null;
 
     public function getId(): ?int
