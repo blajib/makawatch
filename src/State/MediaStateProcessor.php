@@ -5,14 +5,12 @@ namespace App\State;
 use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class MakaUserProcessor implements ProcessorInterface
+class MediaStateProcessor implements ProcessorInterface
 {
     public function __construct(
         private ProcessorInterface $persistProcessor,
         private ProcessorInterface $removeProcessor,
-        private UserPasswordHasherInterface $hasher
     )
     {
     }
@@ -23,7 +21,6 @@ class MakaUserProcessor implements ProcessorInterface
             return $this->removeProcessor->process($data, $operation, $uriVariables, $context);
         }
 
-        $data->setPassword($this->hasher->hashPassword($data, "password"));
         $data->setCreatedAt(new \DateTimeImmutable(date('y-m-d h:i:s')));
 
         $result = $this->persistProcessor->process($data, $operation, $uriVariables, $context);
