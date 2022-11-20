@@ -13,6 +13,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource()]
 class Item
 {
+    public const LEVELS = [1,2,3,4,5,6,7];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

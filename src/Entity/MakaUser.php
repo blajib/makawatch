@@ -31,6 +31,13 @@ class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
     private ?array $roles = [];
 
     #[ORM\Column]
+    #[Assert\Length(min: 10,
+        max: 20,
+        minMessage: "Le password doit avoir minimum 10 caractères",
+        maxMessage: "Le password doit avoir moins de 20 caractères"
+    )]
+    #[Assert\Regex(pattern : '/\d+/i')]
+    #[Assert\Regex(pattern : '/[#?!@$%^&*-]+/i')]
     private ?string $password = null;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Item::class)]
