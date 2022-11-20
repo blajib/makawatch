@@ -47,7 +47,7 @@ class Media
     private ?Item $item = null;
 
     #[ORM\OneToMany(mappedBy: 'media', targetEntity: Comment::class)]
-    private Collection $comments;
+    private Collection $comments ;
 
     #[ORM\ManyToOne(targetEntity: MakaUser::class,inversedBy: 'medias')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]

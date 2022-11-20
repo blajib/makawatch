@@ -30,22 +30,18 @@ services:
     App\State\MakaUserProcessor:
         bind:
             $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
-            $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'
 
     App\State\MediaStateProcessor:
         bind:
             $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
-            $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'
 
     App\State\ItemStateProcessor:
         bind:
             $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
-            $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'
 
     App\State\CommentStateProcessor:
         bind:
             $persistProcessor: '@api_platform.doctrine.orm.state.persist_processor'
-            $removeProcessor: '@api_platform.doctrine.orm.state.remove_processor'
 
 
 
