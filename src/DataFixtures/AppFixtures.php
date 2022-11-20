@@ -10,6 +10,7 @@ use App\Entity\Type;
 use App\Entity\MakaUser;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Faker;
 
 class AppFixtures extends Fixture
@@ -50,6 +51,16 @@ class AppFixtures extends Fixture
 
     private array $types;
 
+    private UserPasswordHasherInterface $hasher;
+
+    /**
+     * @param UserPasswordHasherInterface $hasher
+     */
+    public function __construct(UserPasswordHasherInterface $hasher)
+    {
+        $this->hasher = $hasher;
+    }
+
     public function load(ObjectManager $manager): void
     {
         $faker = Faker\Factory::create();
@@ -58,11 +69,11 @@ class AppFixtures extends Fixture
         $userAdmin = new MakaUser();
         $userAdmin->setFirstName('jib');
         $userAdmin->setLastName('bla');
-        $userAdmin->setPassword('california');
+        $userAdmin->setPassword($this->hasher->hashPassword($userAdmin,'california'));
         $userAdmin->setCreatedAt(new \DateTime('now'));
         $userAdmin->setEmail('bla@gmail.com');
         $userAdmin->setBirthDate(new \DateTime('08-04-1988'));
-        $userAdmin->setRoles(['ROLE_SUPER_ADMIN']);
+        $userAdmin->setRoles(['ROLE_USER']);
         $userAdmin->setProfession('developpeur');
 
         $manager->persist($userAdmin);
@@ -78,7 +89,7 @@ class AppFixtures extends Fixture
             $user->setRoles(['ROLE_USER']);
             $user->setBirthDate($faker->dateTimeBetween('-50 years', '-20 years'));
             $user->setCreatedAt(new \DateTime('now'));
-            $user->setPassword($faker->password);
+            $user->setPassword($this->hasher->hashPassword($user,'california'));
 
             $manager->persist($user);
             $manager->flush();

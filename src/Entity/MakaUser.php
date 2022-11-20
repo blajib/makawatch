@@ -10,7 +10,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -20,11 +20,11 @@ class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(['show_maka_user', 'list_maka_user'])]
+    #[Assert\NotBlank(message: "L'email doit être contribué")]
+    #[Assert\Email(message: "L'email n'est pas correct")]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -37,39 +37,30 @@ class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
     private ?Collection $items;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?\DateTimeInterface $updateAt = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?string $profession = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['show_maka_user', 'list_maka_user'])]
     private ?\DateTimeInterface $birthDate = null;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Media::class)]
-    #[Groups(['show_maka_user'])]
     private ?Collection $medias;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Category::class)]
-    #[Groups(['show_maka_user'])]
     private ?Collection $categories;
 
     #[ORM\OneToMany(mappedBy: 'makaUser', targetEntity: Comment::class)]
-    #[Groups(['show_maka_user'])]
     private ?Collection $comments;
 
     public function __construct()
@@ -78,6 +69,10 @@ class MakaUser implements UserInterface, PasswordAuthenticatedUserInterface
         $this->medias = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->comments = new ArrayCollection();
+    }
+
+    public function getUsername(): string {
+        return $this->getUserIdentifier();
     }
 
     public function getId(): ?int

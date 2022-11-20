@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\MakaUser;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('api-mak/user')]
+#[Route('apip/maka-users')]
 class UserController extends AbstractController
 {
     private SerializerInterface $serializer;
@@ -55,6 +54,7 @@ class UserController extends AbstractController
     #[Route('/{id}', name: 'maka_user_show', requirements: ["id" => "\d+"], methods: ['GET'])]
     public function show(MakaUser $user): JsonResponse
     {
+        return new JsonResponse(['hey' => 'hey'], 'json');
         $jsonUser = $this->serializer->serialize($user, 'json', ['groups' => 'show_maka_user']);
 
         return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
@@ -104,5 +104,11 @@ class UserController extends AbstractController
         }
 
         return new JsonResponse($jsonResult, Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/test-method', name:'test-method', methods: ['POST'])]
+    public function testMethodBro(Request $request)
+    {
+        dd('je suis');
     }
 }
